@@ -1,0 +1,274 @@
+﻿<Window x:Class="NetCoreWeather.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" mc:Ignorable="d"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"    
+        xmlns:fa="http://schemas.fontawesome.com/icons/"
+        xmlns:cmd="clr-namespace:NetCoreWeather.Infrastructure.Commands"
+        xmlns:vm="cls-namespace:NetCoreWeather.ViewModels"
+        xmlns:local="clr-namespace:NetCoreWeather" 
+        Title="{Binding Title}"        
+        DataContext="{Binding MainWindowModel, Source={StaticResource Locator}}"
+        MinHeight="520" MinWidth="700" Width="700" Height="520">
+    <Window.InputBindings>
+        <KeyBinding Modifiers="Control" Key="Q" Command="{Binding CloseApplicationCommand}"/>
+    </Window.InputBindings>
+    <Window.Resources>
+        <cmd:CloseApplicationCommand x:Key="CloseApplicationCommand"/>
+    </Window.Resources>
+    <DockPanel>
+        <!--<Menu DockPanel.Dock="Top" Height="30">
+            <MenuItem Header="Файл" Height="30">
+                --><!--<MenuItem Header="Выход" Command="{Binding CloseApplicationCommand}"/>--><!--
+                <MenuItem Header="Выход" Command="{StaticResource CloseApplicationCommand}"/>
+                --><!--<MenuItem Header="Выход">
+                    <MenuItem.Command>
+                        <cmd:CloseApplicationCommand/>
+                    </MenuItem.Command>
+                </MenuItem>--><!--
+            </MenuItem>
+            <MenuItem Header="Помощь" Height="30">
+                <MenuItem Header="О программе"/>
+            </MenuItem>
+        </Menu>-->
+        <StatusBar DockPanel.Dock="Bottom">
+            <StatusBarItem MinWidth="150" MaxWidth="300" HorizontalAlignment="Left">
+                <TextBlock Text="{Binding Status}"/>
+            </StatusBarItem>
+            <!--<StatusBarItem>
+                <ProgressBar Width="120" Height="14" Value="30"/>
+            </StatusBarItem>-->
+        </StatusBar>
+        <TabControl SelectedIndex="{Binding ActiveTab}">
+            <TabItem>
+                <TabItem.Header>                    
+                    <StackPanel Orientation="Horizontal">
+                        <fa:ImageAwesome Icon="Solid_CloudSun" Height="13" Margin="0,0,5,0"
+                                             Foreground="Gray"/>
+                        <TextBlock Text="Погода"/>
+                    </StackPanel>
+                </TabItem.Header>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="200"/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <Grid Grid.Column="0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="370"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <GroupBox Grid.Column="0" Header="Пошук" DataContext="{Binding desiredDay}" Margin="1">
+                            <Grid Margin="10 0 0 0">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="25"/>
+                                    <RowDefinition Height="65"/>
+                                    <RowDefinition Height="45"/>
+                                    <RowDefinition Height="45"/>
+                                    <RowDefinition Height="45"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <StackPanel Grid.Row="0" Orientation="Horizontal">
+                                    <TextBlock Text="Рік:" Margin="3"/>
+                                    <ComboBox SelectedIndex="0" VerticalAlignment="Top" Margin="5 0 5 0" IsEnabled="False">
+                                        <TextBlock Text="2021"/>
+                                    </ComboBox>
+                                    <TextBlock Text="(Відключено)" Foreground="DarkGray" Margin="5 3 0 0"/>
+                                </StackPanel>
+                                <Grid Grid.Row="1">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="40"/>
+                                        <RowDefinition/>
+                                    </Grid.RowDefinitions>
+                                    <StackPanel Grid.Row="0" Orientation="Vertical" HorizontalAlignment="Center">
+                                        <CheckBox Margin="20 3 3 0" IsChecked="{Binding IsDate}">
+                                            <TextBlock Text="Часовий проміжок" FontWeight="Bold"/>
+                                        </CheckBox>
+                                        <TextBlock Grid.Row="0" Text="Місяць:" FontWeight="Bold" HorizontalAlignment="Center" Margin="0 2 0 0"/>
+                                    </StackPanel>
+                                    <StackPanel  Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center">
+                                        <TextBlock Text="Від " Margin="5 0 5 0"/>
+                                        <TextBox Width="50" Margin="5 0 5 0" Text="{Binding StartMonth, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding IsDate}"/>
+                                        <TextBlock Text="До " Margin="5 0 5 0"/>
+                                        <TextBox Width="50" Margin="5 0 5 0" Text="{Binding EndMonth, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding IsDate}"/>
+                                    </StackPanel>
+                                </Grid>
+                                <Grid Grid.Row="2">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition/>
+                                        <RowDefinition/>
+                                    </Grid.RowDefinitions>
+                                    <TextBlock Grid.Row="0" Text="День:" FontWeight="Bold" HorizontalAlignment="Center" Margin="0 2 0 0"/>
+                                    <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center">
+                                        <TextBlock Text="Від " Margin="5 0 5 0"/>
+                                        <TextBox Width="50" Margin="5 0 5 0" Text="{Binding StartDay, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding IsDate}"/>
+                                        <TextBlock Text="До " Margin="5 0 5 0"/>
+                                        <TextBox Width="50" Margin="5 0 5 0" Text="{Binding EndDay, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding IsDate}"/>
+                                    </StackPanel>
+                                </Grid>
+                                <Grid Grid.Row="3">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition/>
+                                        <RowDefinition/>
+                                    </Grid.RowDefinitions>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                                        <CheckBox Margin="40 3 3 0" IsChecked="{Binding IsTemperature}"/>
+                                        <TextBlock Grid.Row="0" Text="Температура:" FontWeight="Bold" HorizontalAlignment="Center" Margin="0 2 0 0"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center">
+                                        <TextBlock Text="Від " Margin="5 0 5 0"/>
+                                        <TextBox Width="50" Margin="5 0 5 0" Text="{Binding StartTemperature, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding IsTemperature}"/>
+                                        <TextBlock Text="До " Margin="5 0 5 0"/>
+                                        <TextBox Width="50" Margin="5 0 5 0" Text="{Binding EndTemperature, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding IsTemperature}"/>
+                                    </StackPanel>
+                                </Grid>
+                                <Grid Grid.Row="4">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition/>
+                                        <RowDefinition/>
+                                    </Grid.RowDefinitions>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                                        <CheckBox Margin="40 3 3 0" IsChecked="{Binding IsPress}"/>
+                                        <TextBlock Grid.Row="0" Text="Тиск:" FontWeight="Bold" HorizontalAlignment="Center" Margin="0 2 0 0"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center">
+                                        <TextBlock Text="Від " Margin="5 0 5 0"/>
+                                        <TextBox Width="50" Margin="5 0 5 0" Text="{Binding StartPressure, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding IsPress}"/>
+                                        <TextBlock Text="До " Margin="5 0 5 0"/>
+                                        <TextBox Width="50" Margin="5 0 5 0" Text="{Binding EndPressure, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding IsPress}"/>
+                                    </StackPanel>
+                                </Grid>
+                                <Grid Grid.Row="5">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="20"/>
+                                        <RowDefinition/>
+                                    </Grid.RowDefinitions>
+                                    <TextBlock Grid.Row="0" Text="Опади:" FontWeight="Bold" HorizontalAlignment="Center" Margin="0 2 0 0"/>
+                                    <StackPanel Grid.Row="1" Orientation="Vertical" HorizontalAlignment="Center">
+                                        <CheckBox Content="Без опадів" IsChecked="{Binding Precipitation.WithoutPrecipitation}"/>
+                                        <CheckBox Content="Дощ" IsChecked="{Binding Precipitation.Rain}"/>
+                                        <CheckBox Content="Сніг" IsChecked="{Binding Precipitation.Snow}"/>
+                                        <CheckBox Content="Град" IsChecked="{Binding Precipitation.Hail}"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Grid>
+                        </GroupBox>
+                        <Button Grid.Row="1" Content="Пошук" Margin="0 10 0 0" Width="100" Command="{Binding SearchCommand}" Height="25" VerticalAlignment="Top"/>
+                    </Grid>
+                    <Grid Grid.Column="1"  >
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="370"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <GroupBox Header="Погода 2021" Margin="1">
+                            <DataGrid Grid.Row="0" ItemsSource="{Binding Table}"   
+                                      AutoGenerateColumns="False"
+                                      IsReadOnly="True"
+                                      GridLinesVisibility="Vertical"
+                                      VerticalGridLinesBrush="DarkGray"
+                                      AlternatingRowBackground="LightGray"
+                                      SelectionMode="Single"
+                                      SelectedIndex="{Binding SelectedRowIndex}" Grid.ColumnSpan="2">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Місяць" Binding="{Binding Місяць}"  Width="Auto"/>
+                                    <DataGridTextColumn Header="День" Binding="{Binding День}" Width="Auto"/>
+                                    <DataGridTextColumn Header="Температура" Binding="{Binding Температура}"  Width="Auto"/>
+                                    <DataGridTextColumn Header="Тиск" Binding="{Binding Тиск}"  Width="Auto"/>
+                                    <DataGridTextColumn Header="Опади" Binding="{Binding Опади}" Width="*"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+
+                        </GroupBox>
+                        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0 10 0 0" Grid.ColumnSpan="2">
+                            <Button Height="25" Margin="5 0 5 0" Command="{Binding AddCommand}">
+                                <StackPanel Orientation="Horizontal">
+                                    <fa:ImageAwesome Icon="Solid_Plus" Height="13" Margin="3,0,5,0"
+                                             Foreground="ForestGreen"/>
+                                    <TextBlock Text="Додати" Margin="0 0 3 0"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Height="25" Margin="5 0 5 0" Command="{Binding EditCommand}">
+                                <StackPanel Orientation="Horizontal">
+                                    <fa:ImageAwesome Icon="Solid_Wrench" Height="13" Margin="3,0,5,0"
+                                             Foreground="Blue"/>
+                                    <TextBlock Text="Редагувати" Margin="0 0 3 0"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Height="25" Margin="50 0 5 0" Command="{Binding RemoveCommand}">
+                                <StackPanel Orientation="Horizontal">
+                                    <fa:ImageAwesome Icon="Solid_Trash" Height="13" Margin="3,0,5,0"
+                                             Foreground="Red"/>
+                                    <TextBlock Text="Видалити" Margin="0 0 3 0"/>
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+                    </Grid>
+                </Grid>
+            </TabItem>
+            <TabItem IsEnabled="{Binding IsEditing}">
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <fa:ImageAwesome Icon="Regular_File" Height="13" Margin="0,0,5,0"
+                                         Foreground="Gray"/>
+                        <TextBlock Text="{Binding SelectedDay.Month}"/>
+                    </StackPanel>
+                </TabItem.Header>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="180"/>
+                        <ColumnDefinition Width="100"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid Grid.Column="0" Grid.ColumnSpan="3">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="35"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Grid.Row="0" Text="Введіть дані! Поля з зірочкою обов'зкові до заповнення." TextWrapping="Wrap" Width=" 180" HorizontalAlignment="Left"/>
+                        <Grid Grid.Row="1">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="85"/>
+                                <ColumnDefinition Width="75"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="30"/>
+                                <RowDefinition Height="30"/>
+                                <RowDefinition Height="30"/>
+                                <RowDefinition Height="30"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Місяць*" Margin="5 5 0 0"/>
+                            <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding SelectedDay.Month, UpdateSourceTrigger=PropertyChanged}" Width="50" Margin="5 3 5 3" IsEnabled="{Binding IsAdding}"/>
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="День*" Margin="5 5 0 0"/>
+                            <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding SelectedDay.Day, UpdateSourceTrigger=PropertyChanged}" Width="50" Margin="5 3 5 3" IsEnabled="{Binding IsAdding}"/>
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Температура" Margin="5 5 0 0"/>
+                            <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding SelectedDay.Temperature, UpdateSourceTrigger=PropertyChanged}" Width="50" Margin="5 3 5 3"/>
+                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Тиск" Margin="5 5 0 0"/>
+                            <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding SelectedDay.Pressure, UpdateSourceTrigger=PropertyChanged}" Width="50" Margin="5 3 5 3"/>
+                        </Grid>
+                    </Grid>
+                    <StackPanel Grid.Column="1" Orientation="Vertical" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0 0 0 0">
+                        <Button Height="25"  Command="{Binding ApplyCommand}">
+                            <StackPanel Orientation="Horizontal">
+                                <fa:ImageAwesome Icon="Solid_Check" Height="13" Margin="0,0,3,0"
+                                             Foreground="ForestGreen"/>
+                                <TextBlock Text="Внести"/>
+                            </StackPanel>
+                        </Button>
+                        <TextBlock Text="Опади:" FontWeight="Bold" Margin="10 15 3 3"/>
+                        <CheckBox Content="Без опадів" IsChecked="{Binding SelectedDay.Precipitation.WithoutPrecipitation}" Margin="3 3 3 3"/>
+                        <CheckBox Content="Дощ" IsChecked="{Binding SelectedDay.Precipitation.Rain}" Margin="3 3 3 3"/>
+                        <CheckBox Content="Сніг" IsChecked="{Binding SelectedDay.Precipitation.Snow}" Margin="3 3 3 3"/>
+                        <CheckBox Content="Град" IsChecked="{Binding SelectedDay.Precipitation.Hail}" Margin="3 3 3 3"/>
+                    </StackPanel>
+                    <TextBlock Grid.Column="2"
+                               Width="200" Height="50" Margin="5"
+                               VerticalAlignment="Top" HorizontalAlignment="Left"
+                               TextWrapping="Wrap"
+                               FontWeight="Bold" Foreground="Red"
+                               Text="{Binding ErrorText}"/>
+                </Grid>
+            </TabItem>
+        </TabControl>
+    </DockPanel>
+</Window>

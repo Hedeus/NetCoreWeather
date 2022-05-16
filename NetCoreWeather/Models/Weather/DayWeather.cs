@@ -1,11 +1,13 @@
-﻿namespace NetCoreWeather.Models.Weather
+﻿using NetCoreWeather.Models.Interfaces;
+
+namespace NetCoreWeather.Models.Weather
 {
     internal class PrecipitationBool
-    {
+    {        
         public bool WithoutPrecipitation { get; set; }
         public bool Rain { get; set; }
         public bool Snow { get; set; }
-        public bool Hail { get; set; }
+        public bool Hail { get; set; }        
     }
     internal class DayWeather
     {

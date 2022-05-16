@@ -210,13 +210,13 @@
                     <StackPanel Orientation="Horizontal">
                         <fa:ImageAwesome Icon="Regular_File" Height="13" Margin="0,0,5,0"
                                          Foreground="Gray"/>
-                        <TextBlock Text="{Binding SelectedDay.Month}"/>
+                        <TextBlock Text="Редагування"/>
                     </StackPanel>
                 </TabItem.Header>
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="180"/>
-                        <ColumnDefinition Width="100"/>
+                        <ColumnDefinition Width="120"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <Grid Grid.Column="0" Grid.ColumnSpan="3">
@@ -248,14 +248,14 @@
                         </Grid>
                     </Grid>
                     <StackPanel Grid.Column="1" Orientation="Vertical" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0 0 0 0">
-                        <Button Height="25"  Command="{Binding ApplyCommand}">
+                        <Button Height="30"  Command="{Binding ApplyCommand}" Margin="3">
                             <StackPanel Orientation="Horizontal">
                                 <fa:ImageAwesome Icon="Solid_Check" Height="13" Margin="0,0,3,0"
                                              Foreground="ForestGreen"/>
                                 <TextBlock Text="Внести"/>
                             </StackPanel>
                         </Button>
-                        <TextBlock Text="Опади:" FontWeight="Bold" Margin="10 15 3 3"/>
+                        <TextBlock Text="Опади:" FontWeight="Bold" Margin="10 7 3 3"/>
                         <CheckBox Content="Без опадів" IsChecked="{Binding SelectedDay.Precipitation.WithoutPrecipitation}" Margin="3 3 3 3"/>
                         <CheckBox Content="Дощ" IsChecked="{Binding SelectedDay.Precipitation.Rain}" Margin="3 3 3 3"/>
                         <CheckBox Content="Сніг" IsChecked="{Binding SelectedDay.Precipitation.Snow}" Margin="3 3 3 3"/>

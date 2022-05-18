@@ -543,9 +543,10 @@ namespace NetCoreWeather.ViewModels
             Paragraph para = section.AddParagraph();
             para.AppendText(textToFile);
             doc.SaveToFile(filename, FileFormat.Docx);
-        } 
+        }
         #endregion
 
+        #region AVGtemperature - пошук і збереження середнього значення температури за місяць
         internal void AVGtemperature()
         {
             if (Month < 1 || Month > 12) return;
@@ -553,7 +554,7 @@ namespace NetCoreWeather.ViewModels
             string SearchStr = "SELECT AVG(temperature) as `average` FROM weather.weather2021 "
                              + $"WHERE month(date) = {month};";
             DataTable table = new DataTable();
-            table = DataBaseService.ExecuteQuery(SearchStr);            
+            table = DataBaseService.ExecuteQuery(SearchStr);
             AVGTemp = Convert.ToString(table.Rows[0]["average"]);
             if (AVGTemp == "")
                 AVGTemp = "Нема даних";
@@ -567,7 +568,8 @@ namespace NetCoreWeather.ViewModels
             Paragraph para = section.AddParagraph();
             para.AppendText(textToFile);
             doc.SaveToFile(filename, FileFormat.Docx);
-        }
+        } 
+        #endregion
 
         #endregion
 

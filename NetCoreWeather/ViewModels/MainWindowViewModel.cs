@@ -7,6 +7,8 @@ using NetCoreWeather.Services;
 using System.Data;
 using NetCoreWeather.Models.Weather;
 using System.Windows.Markup;
+using Spire.Doc;
+using Spire.Doc.Documents;
 
 namespace NetCoreWeather.ViewModels
 {
@@ -98,8 +100,8 @@ namespace NetCoreWeather.ViewModels
         /// <summary>
         /// Результат запита SELECT
         /// </summary>
-        private DataTable _Table;
-        public DataTable Table
+        private System.Data.DataTable _Table;
+        public System.Data.DataTable Table
         {
             get => _Table;
             set => Set(ref _Table, value);
@@ -135,6 +137,23 @@ namespace NetCoreWeather.ViewModels
             set => Set(ref _desiredDay, value);
         }
 
+        #endregion
+
+        #region AWG
+
+        private int _Month = 1;
+        public int Month
+        {
+            get => _Month;
+            set => Set(ref _Month, value);
+        }
+
+        private string _AVGTemp = "Не визначено!";
+        public string AVGTemp
+        {
+            get => _AVGTemp;
+            set => Set(ref _AVGTemp, value);
+        }
         #endregion
 
         /*------------------------------------------------------------------------------------*/
@@ -345,8 +364,8 @@ namespace NetCoreWeather.ViewModels
 
         public void RowEditButtonClick()
         {
-            if (Table == null) return;
-            ActiveTab = 1;
+            //if (Table == null) return;
+            ActiveTab = 2;
             IsEditing = true;
             IsAdding = false;
             DayWeather selday = new DayWeather();
@@ -393,7 +412,7 @@ namespace NetCoreWeather.ViewModels
                         string dateStr = SelectedDay.Month.ToString() + "," +
                             SelectedDay.Day.ToString() + "," + year.ToString();
                         command = "SELECT * FROM weather2021 WHERE date = STR_TO_DATE('" + dateStr + "', '%m,%d,%Y'); ";
-                        DataTable table = new DataTable();
+                        var table = new System.Data.DataTable();
                         table = DataBaseService.ExecuteQuery(command);
 
 
@@ -438,7 +457,7 @@ namespace NetCoreWeather.ViewModels
 
         internal void RowAddButtonClick()
         {
-            ActiveTab = 1;
+            ActiveTab = 2;
             IsEditing = true;
             IsAdding = true;
             DayWeather selday = new DayWeather();
@@ -459,6 +478,7 @@ namespace NetCoreWeather.ViewModels
 
         #endregion
 
+        #region RowRemoveButtonClick - Видалення обраного рядка
         internal bool RowRemoveButtonClick()
         {
             if (Table == null) return false;
@@ -488,12 +508,94 @@ namespace NetCoreWeather.ViewModels
                 Status = "Виділення рядка відмінено.";
             return false;
         }
+        #endregion
+
+        #region DocumentSaving - запис таблиці у файл MS Word
+        internal void DocumentSaving()
+        {
+            string textToFile = "";
+            DataRow row = Table.NewRow();
+            var day = new DayWeather();
+            for (var i = 0; i < Table.Rows.Count; i++)
+            {
+                row = Table.Rows[i];
+                textToFile += Convert.ToString(row["День"])
+                    + "." + Convert.ToString(row["Місяць"])
+                    + "  t(C): " + Convert.ToString(row["Температура"])
+                    + "  тиск: " + Convert.ToString(row["Тиск"])
+                    + "  опади: ";
+                day.PreciInt = Convert.ToInt32(row["PercInt"]);
+                day.PrecipitationToBool();
+                if (day.Precipitation.WithoutPrecipitation)
+                    textToFile += "без опадів ";
+                if (day.Precipitation.Rain)
+                    textToFile += "дощ ";
+                if (day.Precipitation.Snow)
+                    textToFile += "сніг ";
+                if (day.Precipitation.Hail)
+                    textToFile += "град";
+                textToFile += "\n";
+            }
+
+            string filename = "Weather.doc";
+            Document doc = new Document();
+            Section section = doc.AddSection();
+            Paragraph para = section.AddParagraph();
+            para.AppendText(textToFile);
+            doc.SaveToFile(filename, FileFormat.Docx);
+        } 
+        #endregion
+
+        internal void AVGtemperature()
+        {
+            if (Month < 1 || Month > 12) return;
+            int month = Month;
+            string SearchStr = "SELECT AVG(temperature) as `average` FROM weather.weather2021 "
+                             + $"WHERE month(date) = {month};";
+            DataTable table = new DataTable();
+            table = DataBaseService.ExecuteQuery(SearchStr);            
+            AVGTemp = Convert.ToString(table.Rows[0]["average"]);
+            if (AVGTemp == "")
+                AVGTemp = "Нема даних";
+
+            string textToFile = $"Середня температура за {month} місяць: " + AVGTemp;
+            string filename = "Weather.doc";
+            Document doc = new Document();
+            doc.LoadFromFile(filename);
+
+            Section section = doc.LastSection;
+            Paragraph para = section.AddParagraph();
+            para.AppendText(textToFile);
+            doc.SaveToFile(filename, FileFormat.Docx);
+        }
 
         #endregion
 
         /*------------------------------------------------------------------------------------*/
 
         #region Команды
+
+        #region SaveDocCommand
+        public ICommand SaveDocCommand { get; }
+
+        private bool CanSaveDocCommandExecute(object p) => Table != null;
+
+        private void OnSaveDocCommandExecuted(object p)
+        {
+            DocumentSaving();
+        }
+        #endregion
+
+        #region AVGtemperatureCommand
+        public ICommand AVGtemperatureCommand { get; }
+
+        private bool CanAVGtemperatureCommandExecute(object p) => true;
+
+        private void OnAVGtemperatureCommandExecuted(object p)
+        {
+            AVGtemperature();
+        }
+        #endregion
 
         #region  CloseApplicationCommand
         public ICommand CloseApplicationCommand { get; }
@@ -502,7 +604,7 @@ namespace NetCoreWeather.ViewModels
 
         private void OnCloseApplicationCommandExecuted(object p)
         {
-            Application.Current.Shutdown();
+            System.Windows.Application.Current.Shutdown();
         }
         #endregion
 
@@ -522,7 +624,8 @@ namespace NetCoreWeather.ViewModels
         #region Редагування
         public ICommand EditCommand { get; }
 
-        private bool CanEditCommandExecute(object p) => SelectedRowIndex >= 0;
+        private bool CanEditCommandExecute(object p) => Table != null;
+        //private bool CanEditCommandExecute(object p) => SelectedRowIndex >= 0;
 
         private void OnEditCommandExecuted(object p)
         {
@@ -534,7 +637,7 @@ namespace NetCoreWeather.ViewModels
         #region Видалення
         public ICommand RemoveCommand { get; }
 
-        private bool CanRemoveCommandExecute(object p) => SelectedRowIndex >= 0;
+        private bool CanRemoveCommandExecute(object p) => Table != null;
 
         private void OnRemoveCommandExecuted(object p)
         {
@@ -570,7 +673,6 @@ namespace NetCoreWeather.ViewModels
 
         #endregion
 
-
         #endregion
 
         /*------------------------------------------------------------------------------------*/
@@ -586,20 +688,26 @@ namespace NetCoreWeather.ViewModels
             EditCommand = new LambdaCommand(OnEditCommandExecuted, CanEditCommandExecute);
             RemoveCommand = new LambdaCommand(OnRemoveCommandExecuted, CanRemoveCommandExecute);
             ApplyCommand = new LambdaCommand(OnApplyCommandExecuted, CanApplyCommandExecute);
+            SaveDocCommand = new LambdaCommand(OnSaveDocCommandExecuted, CanSaveDocCommandExecute);
+            AVGtemperatureCommand = new LambdaCommand(OnAVGtemperatureCommandExecuted, CanAVGtemperatureCommandExecute);
 
             #endregion
 
             var student_index = 1;
 
             desiredDay = new DesiredDay();
-            desiredDay.StartDay = 20;
-            desiredDay.StartMonth = 3;
-            desiredDay.EndDay = 29;
-            desiredDay.EndMonth = 8;
-            //desiredDay.StartDay = 0;
-            //desiredDay.StartMonth = 0;
-            //desiredDay.EndDay = 0;
-            //desiredDay.EndMonth = 0;
+            //desiredDay.StartDay = 20;
+            //desiredDay.StartMonth = 3;
+            //desiredDay.EndDay = 29;
+            //desiredDay.EndMonth = 8;
+            desiredDay.StartDay = 0;
+            desiredDay.StartMonth = 0;
+            desiredDay.EndDay = 0;
+            desiredDay.EndMonth = 0;
+            desiredDay.IsTemperature = true;
+            desiredDay.StartTemperature = -100;
+            desiredDay.EndTemperature = -1;
+            desiredDay.Precipitation.Snow = true;
             //Table = new DataTable();
 
             SelectedDay = new DayWeather();
